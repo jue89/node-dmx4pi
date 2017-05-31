@@ -1,0 +1,16 @@
+{
+  "name": "dmx4pi",
+  "version": "0.0.0",
+  "description": "Convert your Raspberry Pi into a DMX512 controller",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "keywords": [
+    "dmx512"
+  ],
+  "author": "Jue <me@jue.yt>",
+  "license": "MIT",
+  "dependencies": {}
+}
