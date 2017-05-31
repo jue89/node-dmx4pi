@@ -12,5 +12,8 @@
   ],
   "author": "Jue <me@jue.yt>",
   "license": "MIT",
-  "dependencies": {}
+  "gypfile": true,
+  "dependencies": {
+    "nan": "^2.6.2"
+  }
 }
