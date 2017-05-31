@@ -1,5 +1,6 @@
 // -Wall?
 
+#include <unistd.h>
 #include <nan.h>
 #include <node.h>
 #include <node_buffer.h>
@@ -44,6 +45,52 @@ void setTxPulse( gpioPulse_t *pulse, int bit, int duration ) {
 	}
 	pulse->usDelay = duration;
 }
+
+
+
+// ASYNC WORKER
+class transmitWorker : public Nan::AsyncWorker {
+	private:
+		gpioPulse_t *data;
+		size_t cnt;
+
+	public:
+		transmitWorker( Nan::Callback *callback, gpioPulse_t *data, size_t cnt ) : AsyncWorker( callback ), data( data ), cnt( cnt ) {}
+
+		~transmitWorker() {
+			free( data );
+		}
+
+		void Execute() {
+
+			int waveId;
+
+			// Set enable line
+			setEn();
+
+			// Create waveform
+			gpioWaveAddGeneric( this->cnt, this->data );
+			waveId = gpioWaveCreate();
+
+			// Transmit everything
+			gpioWaveTxSend( waveId, PI_WAVE_MODE_ONE_SHOT );
+
+			// Wait for the transmission to finish
+			// (The dirty way -> Polling)
+			while( gpioWaveTxBusy() ) usleep( 1000 * BITUS );
+
+			// Clear enable line
+			clearEn();
+
+			// Clean up DMA stuff
+			gpioWaveDelete( waveId );
+
+		}
+
+		void HandleOKCallback() {
+			callback->Call( 0, 0 );
+		}
+};
 
 
 
@@ -147,17 +194,11 @@ NAN_METHOD( transmit ) {
 		setTxPulse( ptr++, 1, BITUS * 2 );
 	}
 
-	// TODO: Transmit
+	// Get callback method
+	Nan::Callback *callback = new Nan::Callback( info[1].As<v8::Function>() );
 
-	// DEBUG: Output everything
-	/*printf( "Start: %p\n", data );
-	printf( "End:   %p\n", ptr );
-	printf( "Size:  %d\n", pulses*sizeof(gpioPulse_t) );
-	for( size_t k = 0; k < pulses; k++ ) {
-		printf( "%d %d %d\n", data[k].usDelay, data[k].gpioOn, data[k].gpioOff );
-	}*/
-
-	free( data );
+	// Transmit waveform asynchronously
+	Nan::AsyncQueueWorker( new transmitWorker( callback, data, pulses ) );
 
 }
 
