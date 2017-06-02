@@ -14,6 +14,7 @@
   "license": "MIT",
   "gypfile": true,
   "dependencies": {
+    "json-gate": "^0.8.23",
     "nan": "^2.6.2"
   }
 }
