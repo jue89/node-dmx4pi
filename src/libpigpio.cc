@@ -74,8 +74,9 @@ class transmitWorker : public Nan::AsyncWorker {
 			gpioWaveTxSend( waveId, PI_WAVE_MODE_ONE_SHOT );
 
 			// Wait for the transmission to finish
-			// (The dirty way -> Polling)
-			while( gpioWaveTxBusy() ) usleep( 1000 * BITUS );
+			// First guess required time and then polling
+			usleep( ( 22 + 2 + 10 + cnt ) * BITUS );
+			while( gpioWaveTxBusy() ) usleep( 10 * BITUS );
 
 			// Clear enable line
 			clearEn();
