@@ -1,5 +1,3 @@
-// -Wall?
-
 #include <unistd.h>
 #include <nan.h>
 #include <node.h>
@@ -118,16 +116,22 @@ NAN_METHOD( init ) {
 	invTx = info[2]->ToBoolean()->Value();
 	invEn = info[3]->ToBoolean()->Value();
 
-	// TODO: Are both pins the same?
+	// Are both pins the same?
+	if(  pinTx == pinEn ) {
+		terminate();
+		Nan::ThrowError( "EN and TX cannot be set to the same pin" );
+		return;
+	}
+
 
 	// Set TX pin
 	err = gpioSetMode( pinTx, PI_OUTPUT );
 	if( err == PI_BAD_GPIO ) {
-		gpioTerminate();
+		terminate();
 		Nan::ThrowError( "Bad TX pin" );
 		return;
 	} else if( err == PI_BAD_MODE ) {
-		gpioTerminate();
+		terminate();
 		Nan::ThrowError( "Cannot set TX pin mode" );
 		return;
 	}
