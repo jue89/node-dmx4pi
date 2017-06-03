@@ -1,6 +1,6 @@
 {
   "name": "dmx4pi",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Convert your Raspberry Pi into a DMX512 controller",
   "main": "index.js",
   "scripts": {
@@ -8,9 +8,14 @@
     "install": "node-gyp rebuild"
   },
   "keywords": [
+    "dmx",
     "dmx512"
   ],
   "author": "Jue <me@jue.yt>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jue89/node-dmx4pi.git"
+  },
   "license": "MIT",
   "gypfile": true,
   "dependencies": {
