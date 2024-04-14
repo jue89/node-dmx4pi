@@ -85,10 +85,6 @@ class transmitWorker : public Nan::AsyncWorker {
 			gpioWaveDelete( waveId );
 
 		}
-
-		void HandleOKCallback() {
-			callback->Call( 0, 0 );
-		}
 };
 
 
@@ -112,10 +108,10 @@ NAN_METHOD( init ) {
 	}
 
 	// Read Args
-	pinTx = info[0]->ToInteger()->Value();
-	pinEn = info[1]->ToInteger()->Value();
-	invTx = info[2]->ToBoolean()->Value();
-	invEn = info[3]->ToBoolean()->Value();
+	pinTx = Nan::To<int>(info[0]).FromJust();
+	pinEn = Nan::To<int>(info[1]).FromJust();
+	invTx = Nan::To<bool>(info[2]).FromJust();
+	invEn = Nan::To<bool>(info[3]).FromJust();
 
 	// Are both pins the same?
 	if(  pinTx == pinEn ) {
@@ -168,7 +164,7 @@ NAN_METHOD( transmit ) {
 	}
 
 	// Get buffer containing DMX data
-	v8::Local<v8::Object> bufferObj = info[0]->ToObject();
+	v8::Local<v8::Object> bufferObj = Nan::To<v8::Object>(info[0]).ToLocalChecked();
 	char *bufferData = node::Buffer::Data( bufferObj );
 	size_t bufferLength = node::Buffer::Length( bufferObj );
 
@@ -200,7 +196,7 @@ NAN_METHOD( transmit ) {
 	}
 
 	// Get callback method
-	Nan::Callback *callback = new Nan::Callback( info[1].As<v8::Function>() );
+	Nan::Callback *callback = new Nan::Callback(Nan::To<v8::Function>(info[1]).ToLocalChecked());
 
 	// Transmit waveform asynchronously
 	Nan::AsyncQueueWorker( new transmitWorker( callback, data, pulses ) );
